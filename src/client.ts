@@ -4,6 +4,7 @@ import { EventService } from "./EventService";
 
 /**
  * @class Client
+ * Creates a WebSocket Client for handling events across different applications. Requires a running {@link Server}.
  */
 export class Client implements EventService {
     private _client: WebSocket;
@@ -21,16 +22,9 @@ export class Client implements EventService {
             const id = v4();
             serviceName = serviceName ?? v4();
             //ToDo: Add a method to automatically register new services with certificte matching.
-            const WebSocket = this.isNode()
-                ? require("ws")
-                : globalThis.WebSocket;
-            this._client = new WebSocket(
-                `ws://${
-                    ip ?? "localhost"
-                }:${port}?service=${serviceName}&id=${id}`
-            );
-            this._client.onopen = () =>
-                console.log("Connected to", `${ip ?? "localhost"}:${port}`);
+            const WebSocket = this.isNode() ? require("ws") : globalThis.WebSocket;
+            this._client = new WebSocket(`ws://${ip ?? "localhost"}:${port}?service=${serviceName}&id=${id}`);
+            this._client.onopen = () => console.log("Connected to", `${ip ?? "localhost"}:${port}`);
             this._client.onerror = (err) => console.error;
             this._client.onclose = (ev) => console.log(ev.reason);
             this._client.onmessage = (message) => {
@@ -41,10 +35,7 @@ export class Client implements EventService {
                     }
                 } catch (err) {
                     console.error(err);
-                    console.log(
-                        "Above error occurred while trying to process the following message:",
-                        message.data
-                    );
+                    console.log("Above error occurred while trying to process the following message:", message.data);
                 }
             };
             setTimeout(() => {

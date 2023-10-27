@@ -10,6 +10,7 @@ interface WebSocketClient extends WebSocketServer.WebSocket {
 
 /**
  * @class Server
+ * Creates a WebSocket Server for the managing of events across multiple applications. Allows connections only from {@link Client}s that have been registered using server.registerService(serviceName).
  */
 export class Server implements EventService {
     private _wsServer: WebSocketServer.Server;
@@ -37,9 +38,7 @@ export class Server implements EventService {
             this._wsServer = new WebSocketServer.Server({
                 server: httpServer,
             });
-            this._wsServer.on("connection", (ws, req) =>
-                this.handleConnection(ws, req)
-            );
+            this._wsServer.on("connection", (ws, req) => this.handleConnection(ws, req));
             httpServer.listen(port, () => {
                 console.log(`WebSocket server started on port ${port}`);
             });
@@ -64,9 +63,7 @@ export class Server implements EventService {
      * and ensures that they are valid.
      */
     private handleConnection = (ws: WebSocketClient, req: any) => {
-        ws.on("message", (rawMessage: RawData) =>
-            this.handleServerMessage(rawMessage)
-        );
+        ws.on("message", (rawMessage: RawData) => this.handleServerMessage(rawMessage));
         const parse = require("url").parse;
         let identifiers = parse(req.url!, true).query;
         if (!this.ValidateClientIdentifiers(identifiers)) return;
@@ -83,23 +80,15 @@ export class Server implements EventService {
     private handleServerMessage = (rawMessage: RawData) => {
         try {
             let message: Message<any> = JSON.parse(rawMessage.toString());
-            if (
-                message.destination &&
-                message.destination !== this._registeredServices.Server
-            ) {
+            if (message.destination && message.destination !== this._registeredServices.Server) {
                 this.send(message);
-            } else if (
-                message.destination === this._registeredServices.Server
-            ) {
+            } else if (message.destination === this._registeredServices.Server) {
                 message.destination = undefined;
                 EventService.Event(message.eventId).raise(message.payload);
             }
         } catch (err) {
             console.error(err);
-            console.log(
-                "Above error occurred while trying to process the following message:",
-                rawMessage.toString()
-            );
+            console.log("Above error occurred while trying to process the following message:", rawMessage.toString());
         }
     };
 
@@ -108,20 +97,14 @@ export class Server implements EventService {
      * If the EventService is initialized as a Server, this checks to ensure that Clients
      * are configured properly, and that they have been registered to the Server.
      */
-    private ValidateClientIdentifiers = (identifiers: {
-        id?: string;
-        service?: string;
-    }): boolean => {
+    private ValidateClientIdentifiers = (identifiers: { id?: string; service?: string }): boolean => {
         if (!identifiers.service || !identifiers.id) {
             return false;
         }
 
         let match = false;
         Object.getOwnPropertyNames(this._registeredServices).map((name) => {
-            if (
-                this._registeredServices[name] ===
-                (identifiers.service as string)
-            ) {
+            if (this._registeredServices[name] === (identifiers.service as string)) {
                 match = true;
             }
         });
@@ -139,19 +122,12 @@ export class Server implements EventService {
     private RegisterClient = (ws: WebSocketClient) => {
         let service = this._clients.getById(ws.service!);
         if (service) {
-            ws.close(
-                409,
-                "A service is already registered under this name. Services must have a unique identifier."
-            );
+            ws.close(409, "A service is already registered under this name. Services must have a unique identifier.");
             return;
         }
         this._clients.add(ws.service!, ws);
         ws.onclose = (ev) => {
-            console.log(
-                `${ws.service!} connection closed with error code ${
-                    ev.code
-                } and reason ${ev.reason}.`
-            );
+            console.log(`${ws.service!} connection closed with error code ${ev.code} and reason ${ev.reason}.`);
             this._clients.remove(ws.service!);
         };
         console.log("Connected to ", ws.service);
@@ -171,9 +147,7 @@ export class Server implements EventService {
                 service.send(messageString, (err) => err && console.error(err));
             }
         } else if (message.destination === "all") {
-            this._clients.forEach((service) =>
-                service.send(messageString, (err) => err && console.error(err))
-            );
+            this._clients.forEach((service) => service.send(messageString, (err) => err && console.error(err)));
         }
     };
 

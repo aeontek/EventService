@@ -2,20 +2,49 @@
 
 <dl>
 <dt><a href="#Client">Client</a></dt>
-<dd></dd>
+<dd><p>Client
+Creates a WebSocket Client for handling events across different applications. Requires a running <a href="#Server">Server</a>.</p>
+</dd>
 <dt><a href="#Event">Event</a></dt>
-<dd><p>The Event class contains methods for creating and managing event handlers.</p>
+<dd><p>Event
+The Event class contains methods for creating and managing event handlers.</p>
 </dd>
 <dt><a href="#EventService">EventService</a></dt>
 <dd><p>Service that handles the creation and management of events.</p>
 </dd>
 <dt><a href="#Server">Server</a></dt>
+<dd><p>Server
+Creates a WebSocket Server for the managing of events across multiple applications. Allows connections only from <a href="#Client">Client</a>s that have been registered using server.registerService(serviceName).</p>
+</dd>
+</dl>
+
+## Interfaces
+
+<dl>
+<dt><a href="#Message">Message</a></dt>
 <dd></dd>
 </dl>
+
+<a name="Message"></a>
+
+## Message
+**Kind**: global interface  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| id | <code>string</code> | The unique identifier for this message. This may be valuable for distinguising between iterations of a single event that it called multiple times. |
+| destination | <code>string</code> \| <code>undefined</code> | Optional. The intended recipient service of this message. If the service is not registered with the Server, the message will be ignored. If this argument is omitted, it is assumed that the [Event](#Event) is meant to be handled locally. |
+| origin | <code>string</code> | The service that the [Event](#Event) originated from. |
+| eventId | <code>string</code> | An identifier for the [Event](#Event). While the identifier must be unique for Events on a service, different services may share Event identifiers. It is also possible for a single event to be raised multiple times. |
+| payload | <code>T</code> | Optional. If provided, this generic ([T](T)) object will be passed to events at the destination service as the data for event handlers. |
 
 <a name="Client"></a>
 
 ## Client
+Client
+Creates a WebSocket Client for handling events across different applications. Requires a running [Server](#Server).
+
 **Kind**: global class  
 
 * [Client](#Client)
@@ -39,14 +68,14 @@ Initializes the EventService Client.
 <a name="Client+send"></a>
 
 ### client.send(message)
-Sends a [Message](Message) to the
+Sends a [Message](#Message) to the
 Server, which will route the message to its destination.
 
 **Kind**: instance method of [<code>Client</code>](#Client)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| message | <code>Message</code> | The message object which contains the parameters needed to handle the message, as well as the message itself. |
+| message | [<code>Message</code>](#Message) | The message object which contains the parameters needed to handle the message, as well as the message itself. |
 
 <a name="Client+stop"></a>
 
@@ -57,6 +86,7 @@ Stops the client
 <a name="Event"></a>
 
 ## Event
+Event
 The Event class contains methods for creating and managing event handlers.
 
 **Kind**: global class  
@@ -142,6 +172,9 @@ to the appropriate WebSockets.
 <a name="Server"></a>
 
 ## Server
+Server
+Creates a WebSocket Server for the managing of events across multiple applications. Allows connections only from [Client](#Client)s that have been registered using server.registerService(serviceName).
+
 **Kind**: global class  
 
 * [Server](#Server)
@@ -181,14 +214,14 @@ Adds the given service name to the list of registered services.
 <a name="Server+send"></a>
 
 ### server.send(message)
-Sends a [Message](Message) to the appropriate service, based on the
+Sends a [Message](#Message) to the appropriate service, based on the
 [Message.destination](Message.destination).
 
 **Kind**: instance method of [<code>Server</code>](#Server)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| message | <code>Message</code> | The message object which contains the parameters needed to handle the message, as well as the message itself. |
+| message | [<code>Message</code>](#Message) | The message object which contains the parameters needed to handle the message, as well as the message itself. |
 
 <a name="Server+stop"></a>
 

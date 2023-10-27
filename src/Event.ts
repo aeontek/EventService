@@ -2,10 +2,10 @@ import { v4 } from "uuid";
 import Dictionary from "@aeontek/dictionary";
 
 /**
- * @class
+ * @class Event
  * The Event class contains methods for creating and managing event handlers.
  */
-export default class Event {
+class Event {
     private listeners: Dictionary<{
         raise: (data?: any, destination?: string) => any;
     }> = new Dictionary<{
@@ -22,10 +22,7 @@ export default class Event {
      * can be used to remove the listener.
      * @throws Invalid Identifier error if id is not unique
      */
-    addListener = (
-        callback: (data?: any, destination?: string) => any,
-        id?: string
-    ): string => {
+    addListener = (callback: (data?: any, destination?: string) => any, id?: string): string => {
         if (!id) {
             id = v4();
         }
@@ -61,3 +58,5 @@ export default class Event {
         return this.listeners.getKeys();
     };
 }
+
+export default Event;

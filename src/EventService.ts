@@ -1,5 +1,5 @@
-import { Client } from "./client";
-import { Server } from "./server";
+import { Client } from "./Client";
+import { Server } from "./Server";
 import { v4 } from "uuid";
 import { Message } from "./message";
 import Event from "./Event";
